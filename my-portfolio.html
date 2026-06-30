@@ -32,6 +32,42 @@
   a { color: var(--blue-lt); text-decoration: none; }
   a:hover { text-decoration: underline; }
 
+  /* ── NAV ── */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(11,17,32,.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+    padding: .6rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .nav-name {
+    font-size: .88rem;
+    font-weight: 800;
+    color: var(--text);
+    flex-shrink: 0;
+  }
+  .nav-links {
+    display: flex;
+    gap: .2rem;
+    flex-wrap: wrap;
+  }
+  .nav-links a {
+    font-size: .78rem;
+    font-weight: 600;
+    color: var(--muted);
+    padding: .3rem .7rem;
+    border-radius: 6px;
+    transition: color .15s, background .15s;
+    text-decoration: none;
+  }
+  .nav-links a:hover { color: var(--blue-lt); background: rgba(37,99,235,.1); }
+
   /* ── HERO ── */
   .hero {
     background: var(--surface);
@@ -236,6 +272,41 @@
   }
   .proj p + p { margin-top: .4rem; }
 
+  /* ── EXPERIENCE ── */
+  .exp-list { display: flex; flex-direction: column; gap: .7rem; }
+  .exp-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.1rem 1.4rem;
+    display: flex;
+    gap: 1.2rem;
+    align-items: flex-start;
+  }
+  .exp-icon {
+    font-size: 1.3rem;
+    flex-shrink: 0;
+    margin-top: .1rem;
+  }
+  .exp-body { flex: 1; }
+  .exp-title {
+    font-size: .95rem;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: .2rem;
+  }
+  .exp-meta {
+    font-size: .75rem;
+    color: var(--blue-lt);
+    font-weight: 600;
+    margin-bottom: .35rem;
+  }
+  .exp-desc {
+    font-size: .85rem;
+    color: var(--sub);
+    line-height: 1.6;
+  }
+
   /* ── STRENGTH LIST ── */
   .str-list { display: flex; flex-direction: column; gap: .6rem; }
   .str-item {
@@ -310,6 +381,28 @@
   }
   .plan-empty a { color: var(--blue-lt); }
 
+  /* ── CONTACT ── */
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .8rem;
+  }
+  .contact-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem 1.4rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-decoration: none;
+    transition: border-color .15s;
+  }
+  .contact-card:hover { border-color: var(--blue); text-decoration: none; }
+  .contact-icon { font-size: 1.5rem; flex-shrink: 0; }
+  .contact-label { font-size: .72rem; color: var(--muted); font-weight: 600; margin-bottom: .2rem; }
+  .contact-value { font-size: .9rem; color: var(--blue-lt); font-weight: 600; }
+
   /* ── CLOSING BANNER ── */
   .closing {
     background: linear-gradient(135deg, var(--blue) 0%, #1e40af 100%);
@@ -329,12 +422,28 @@
   }
 
   @media (max-width: 620px) {
-    .vision-row, .stat-row { grid-template-columns: 1fr; }
+    .vision-row, .stat-row, .contact-grid { grid-template-columns: 1fr; }
     .two-col { grid-template-columns: 1fr; }
+    .nav-links a { font-size: .72rem; padding: .25rem .5rem; }
   }
 </style>
 </head>
 <body>
+
+<!-- ── NAV ── -->
+<nav class="nav">
+  <span class="nav-name">명재준</span>
+  <div class="nav-links">
+    <a href="#about">소개</a>
+    <a href="#skills">기술</a>
+    <a href="#projects">프로젝트</a>
+    <a href="#experience">경험</a>
+    <a href="#strengths">강점</a>
+    <a href="#academic">학업</a>
+    <a href="#vision">비전</a>
+    <a href="#contact">연락처</a>
+  </div>
+</nav>
 
 <!-- ── HERO ── -->
 <div class="hero">
@@ -363,7 +472,7 @@
 <main>
 
   <!-- ── 소개 ── -->
-  <div class="section">
+  <div class="section" id="about">
     <div class="section-title"><span class="dot"></span>저를 소개합니다</div>
     <div class="intro-text">
       C언어로 처음 코드를 짰을 때, 실행되는 순간의 감각이 개발의 출발점이었습니다.<br>
@@ -373,7 +482,7 @@
   </div>
 
   <!-- ── 기술 스펙 ── -->
-  <div class="section">
+  <div class="section" id="skills">
     <div class="section-title"><span class="dot"></span>기술 스펙</div>
     <div class="skill-grid">
       <div class="skill-item"><span class="skill-name">C</span><span class="skill-lv lv-mid">중급</span></div>
@@ -391,7 +500,7 @@
   </div>
 
   <!-- ── 프로젝트 ── -->
-  <div class="section">
+  <div class="section" id="projects">
     <div class="section-title"><span class="dot"></span>프로젝트</div>
 
     <div class="proj">
@@ -415,6 +524,45 @@
     </div>
   </div>
 
+  <!-- ── 활동 & 경험 ── -->
+  <div class="section" id="experience">
+    <div class="section-title"><span class="dot"></span>활동 &amp; 경험</div>
+    <div class="exp-list">
+      <div class="exp-item">
+        <div class="exp-icon">🏫</div>
+        <div class="exp-body">
+          <div class="exp-title">유한대학교 컴퓨터소프트웨어공학과</div>
+          <div class="exp-meta">2024.03 — 재학 중 · 2학년</div>
+          <div class="exp-desc">1학년 전 과목 A+ · GPA 4.5 만점 달성. C/C++·Python·DB·운영체제 등 전공 이수.</div>
+        </div>
+      </div>
+      <div class="exp-item">
+        <div class="exp-icon">👥</div>
+        <div class="exp-body">
+          <div class="exp-title">팀 프로젝트 리더십</div>
+          <div class="exp-meta">2024 · 1학년 팀 프로젝트 전부</div>
+          <div class="exp-desc">1학년 동안 진행된 팀 프로젝트 전부에서 팀장을 맡았습니다. 역할 분배, 일정 조율, 결과물 취합, 발표까지 전체 프로세스를 직접 이끌었습니다.</div>
+        </div>
+      </div>
+      <div class="exp-item">
+        <div class="exp-icon">📜</div>
+        <div class="exp-body">
+          <div class="exp-title">ITQ 자격증 취득</div>
+          <div class="exp-meta">한글 · 파워포인트</div>
+          <div class="exp-desc">한국생산성본부 ITQ 공인 자격증 보유. 문서 작성 및 발표 자료 제작 역량 공식 인정.</div>
+        </div>
+      </div>
+      <div class="exp-item">
+        <div class="exp-icon">🐧</div>
+        <div class="exp-body">
+          <div class="exp-title">리눅스 자기주도 학습</div>
+          <div class="exp-meta">2024 — 진행 중</div>
+          <div class="exp-desc">학교 커리큘럼 외 리눅스 서버 환경을 독학 중. 시스템 개발 목표에 맞춰 자발적으로 병행 학습하고 있습니다.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ── 진행 예정 프로젝트 ── -->
   <div class="section" id="plan-section">
     <div class="section-title" style="justify-content:space-between;">
@@ -428,7 +576,7 @@
   </div>
 
   <!-- ── 준비된 것들 ── -->
-  <div class="section">
+  <div class="section" id="strengths">
     <div class="section-title"><span class="dot"></span>준비된</div>
     <div class="str-list">
       <div class="str-item">
@@ -447,7 +595,7 @@
   </div>
 
   <!-- ── 학업 성취 ── -->
-  <div class="section">
+  <div class="section" id="academic">
     <div class="section-title"><span class="dot"></span>학업 성취</div>
     <div class="stat-row">
       <div class="stat-box">
@@ -476,7 +624,7 @@
   </div>
 
   <!-- ── 비전 ── -->
-  <div class="section">
+  <div class="section" id="vision">
     <div class="section-title"><span class="dot"></span>해결하는 사람이 되고 싶다</div>
     <div class="vision-row">
       <div class="v-card">
@@ -492,6 +640,10 @@
         <p>코드보다 시스템 전체를 보는 시니어. 팀이 안정성을 믿고 맡기는 개발자.</p>
       </div>
     </div>
+    <div style="margin-top:.8rem;" class="card">
+      <div class="card-label">희망 직무</div>
+      <p>백엔드 개발 · 서버 / 시스템 개발 · 인프라 운영 — 안정성과 유지보수를 중심으로 기여할 수 있는 포지션을 목표로 합니다.</p>
+    </div>
   </div>
 
   <!-- ── CLOSING ── -->
@@ -502,6 +654,27 @@
         만들어진 것을 끝까지 책임지는 사람은 많지 않습니다.<br>
         <strong>저는 그 자리에 있고 싶습니다.</strong>
       </p>
+    </div>
+  </div>
+
+  <!-- ── 연락처 ── -->
+  <div class="section" id="contact">
+    <div class="section-title"><span class="dot"></span>연락처</div>
+    <div class="contact-grid">
+      <a class="contact-card" href="mailto:wowns133@naver.com">
+        <span class="contact-icon">✉️</span>
+        <div>
+          <div class="contact-label">이메일</div>
+          <div class="contact-value">wowns133@naver.com</div>
+        </div>
+      </a>
+      <a class="contact-card" href="https://github.com/wowns133" target="_blank" rel="noopener">
+        <span class="contact-icon">🐙</span>
+        <div>
+          <div class="contact-label">GitHub</div>
+          <div class="contact-value">github.com/wowns133</div>
+        </div>
+      </a>
     </div>
   </div>
 
