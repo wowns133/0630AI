@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>방학 스터디 아이디어 생성기</title>
+<style>
+  :root {
+    --bg:      #0b1120;
+    --surface: #111827;
+    --card:    #1a2540;
+    --border:  #1e3050;
+    --blue:    #2563eb;
+    --blue-lt: #3b82f6;
+    --blue-bg: rgba(37,99,235,.12);
+    --green:   #16a34a;
+    --green-lt:#22c55e;
+    --green-bg:rgba(34,197,94,.12);
+    --text:    #e2e8f0;
+    --sub:     #94a3b8;
+    --muted:   #64748b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 2.5rem 2rem 2rem;
+    text-align: center;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    font-weight: 900;
+    letter-spacing: -.02em;
+    margin-bottom: .4rem;
+  }
+  header h1 span { color: var(--blue-lt); }
+  header p {
+    color: var(--sub);
+    font-size: .9rem;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* ── KEYWORD PANEL ── */
+  .kw-panel {
+    background: var(--surface);
+    border-bottom: 2px solid var(--border);
+    padding: 1.4rem 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .kw-row {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    flex-wrap: wrap;
+    margin-bottom: .6rem;
+  }
+  .kw-row:last-child { margin-bottom: 0; }
+  .kw-cat {
+    font-size: .7rem;
+    font-weight: 800;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    min-width: 36px;
+    flex-shrink: 0;
+  }
+  .kw-btn {
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: .28rem .9rem;
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--sub);
+    background: transparent;
+    cursor: pointer;
+    transition: border-color .12s, color .12s, background .12s;
+    white-space: nowrap;
+  }
+  .kw-btn:hover { border-color: var(--blue); color: var(--blue-lt); }
+  .kw-btn.active-trend {
+    background: var(--blue-bg);
+    border-color: var(--blue);
+    color: var(--blue-lt);
+  }
+  .kw-btn.active-tech {
+    background: var(--green-bg);
+    border-color: var(--green);
+    color: var(--green-lt);
+  }
+  .kw-btn.active-level {
+    background: rgba(148,163,184,.12);
+    border-color: var(--sub);
+    color: var(--text);
+  }
+
+  /* ── MATCH BAR ── */
+  .match-bar {
+    max-width: 900px;
+    margin: 1.4rem auto .2rem;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: .6rem;
+  }
+  .match-count {
+    font-size: .82rem;
+    color: var(--sub);
+  }
+  .match-count strong { color: var(--blue-lt); font-size: 1.1rem; }
+  .reset-btn {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: .25rem .8rem;
+    font-size: .76rem;
+    color: var(--muted);
+    background: transparent;
+    cursor: pointer;
+    transition: border-color .12s, color .12s;
+  }
+  .reset-btn:hover { border-color: var(--blue); color: var(--blue-lt); }
+
+  /* ── CARD GRID ── */
+  .grid {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 1rem 2rem 4rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: .9rem;
+  }
+
+  /* ── IDEA CARD ── */
+  .idea-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color .15s, opacity .2s;
+  }
+  .idea-card.dimmed { opacity: .35; }
+  .idea-card.matched { border-color: var(--blue); }
+  .idea-card.matched.top { border-color: var(--green); }
+
+  .card-top {
+    padding: 1.1rem 1.2rem .9rem;
+  }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: .6rem;
+    gap: .4rem;
+  }
+  .card-num {
+    font-size: .68rem;
+    font-weight: 800;
+    color: var(--muted);
+    flex-shrink: 0;
+    margin-top: .15rem;
+  }
+  .card-title {
+    font-size: .98rem;
+    font-weight: 800;
+    color: var(--text);
+    flex: 1;
+    line-height: 1.35;
+  }
+  .score-badge {
+    flex-shrink: 0;
+    background: var(--green-bg);
+    border: 1px solid var(--green);
+    border-radius: 6px;
+    font-size: .68rem;
+    font-weight: 800;
+    color: var(--green-lt);
+    padding: .1rem .4rem;
+    display: none;
+  }
+  .score-badge.show { display: block; }
+
+  .card-desc {
+    font-size: .84rem;
+    color: var(--sub);
+    margin-bottom: .8rem;
+    line-height: 1.55;
+  }
+
+  .tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem;
+    margin-bottom: .6rem;
+  }
+  .tag {
+    border-radius: 999px;
+    font-size: .7rem;
+    font-weight: 700;
+    padding: .15rem .6rem;
+  }
+  .tag-trend { background: var(--blue-bg); color: var(--blue-lt); }
+  .tag-tech  { background: var(--green-bg); color: var(--green-lt); }
+  .tag.hl-trend { background: var(--blue); color: #fff; }
+  .tag.hl-tech  { background: var(--green); color: #fff; }
+
+  .stars {
+    font-size: .78rem;
+    letter-spacing: .05em;
+  }
+  .star-filled { color: var(--blue-lt); }
+  .star-empty  { color: var(--border); }
+
+  .card-footer {
+    border-top: 1px solid var(--border);
+    padding: .6rem 1.2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .level-badge {
+    font-size: .7rem;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: .12rem .55rem;
+  }
+  .lv-입문 { background: var(--blue-bg);         color: var(--blue-lt); }
+  .lv-중급 { background: rgba(234,179,8,.1);      color: #facc15; }
+  .lv-도전 { background: rgba(239,68,68,.1);      color: #f87171; }
+  .weeks {
+    font-size: .7rem;
+    color: var(--muted);
+  }
+  .weeks.ok { color: var(--green-lt); }
+  .toggle-icon {
+    font-size: .72rem;
+    color: var(--muted);
+    margin-left: .4rem;
+  }
+
+  /* ── DETAIL PANEL ── */
+  .detail {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .3s ease;
+    border-top: 0px solid var(--border);
+  }
+  .detail.open {
+    max-height: 400px;
+    border-top: 1px solid var(--border);
+  }
+  .detail-inner {
+    padding: 1rem 1.2rem 1.1rem;
+  }
+  .detail-section { margin-bottom: .9rem; }
+  .detail-label {
+    font-size: .68rem;
+    font-weight: 800;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-bottom: .4rem;
+  }
+  .feature-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: .3rem;
+  }
+  .feature-list li {
+    font-size: .82rem;
+    color: var(--sub);
+    padding-left: .9rem;
+    position: relative;
+  }
+  .feature-list li::before {
+    content: '›';
+    position: absolute;
+    left: 0;
+    color: var(--blue-lt);
+    font-weight: 700;
+  }
+  .ref-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem;
+  }
+  .ref-tag {
+    background: rgba(148,163,184,.08);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: .72rem;
+    color: var(--sub);
+    padding: .12rem .55rem;
+  }
+  .why-text {
+    font-size: .82rem;
+    color: var(--sub);
+    line-height: 1.6;
+    border-left: 2px solid var(--blue);
+    padding-left: .7rem;
+  }
+
+  /* ── ADD BUTTON ── */
+  .add-btn {
+    border: 1px solid var(--blue);
+    border-radius: 7px;
+    padding: .22rem .75rem;
+    font-size: .72rem;
+    font-weight: 700;
+    color: var(--blue-lt);
+    background: var(--blue-bg);
+    cursor: pointer;
+    transition: background .12s, border-color .12s, color .12s;
+    white-space: nowrap;
+  }
+  .add-btn:hover:not(:disabled) { background: var(--blue); color: #fff; }
+  .add-btn.added {
+    border-color: var(--green);
+    background: var(--green-bg);
+    color: var(--green-lt);
+    cursor: default;
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: var(--green);
+    color: #fff;
+    padding: .6rem 1.4rem;
+    border-radius: 8px;
+    font-size: .85rem;
+    font-weight: 700;
+    opacity: 0;
+    transition: opacity .2s, transform .2s;
+    pointer-events: none;
+    z-index: 999;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── EMPTY STATE ── */
+  .empty {
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--muted);
+    font-size: .9rem;
+  }
+
+  @media (max-width: 600px) {
+    .kw-panel { padding: 1rem; }
+    .grid { padding: 1rem 1rem 3rem; }
+    .match-bar { padding: 0 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>방학 스터디 <span>아이디어 생성기</span></h1>
+  <p>관심 키워드를 고르면 만들 수 있는 프로젝트가 바로 매칭됩니다</p>
+</header>
+
+<div class="kw-panel">
+  <div class="kw-row" id="row-trend">
+    <span class="kw-cat">트렌드</span>
+  </div>
+  <div class="kw-row" id="row-tech">
+    <span class="kw-cat">기술</span>
+  </div>
+  <div class="kw-row" id="row-level">
+    <span class="kw-cat">난이도</span>
+  </div>
+</div>
+
+<div class="match-bar">
+  <div class="match-count" id="matchCount">키워드를 선택하면 매칭된 아이디어를 보여줍니다</div>
+  <button class="reset-btn" onclick="resetAll()">초기화</button>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<script>
+/* ─────────────────────────────────────────
+   DATA
+───────────────────────────────────────── */
+const IDEAS = [
+  {
+    id: 1,
+    title: '더치페이 & 식비 계산기',
+    desc: '여럿이 먹은 밥값을 항목별로 나눠 각자 얼마 내야 하는지 자동으로 계산',
+    trends: ['가격비교', '일상자동화'],
+    techs: ['웹개발'],
+    level: '입문',
+    stars: 2,
+    why: '프라이스디코딩 트렌드 — 합리적 소비가 일상화되면서 정확한 비용 분담 수요 증가',
+    features: ['금액·인원 입력 및 1/N 자동 계산', '항목별 개인 부담액 분리', '결과 공유용 텍스트 복사'],
+    twoWeeks: true,
+    refs: ['JavaScript 배열·객체', 'DOM 조작', '이벤트 리스너'],
+  },
+  {
+    id: 2,
+    title: '감정 일기 앱',
+    desc: '오늘 기분을 고르고 메모를 남기면 주간 감정 흐름을 시각화해주는 일기',
+    trends: ['감정관리', '건강관리', '개인화'],
+    techs: ['웹개발'],
+    level: '입문',
+    stars: 2,
+    why: '필코노미 트렌드 — 기분을 진단·관리하는 소비가 새로운 경쟁력으로 부상',
+    features: ['감정 이모지 선택 + 메모 저장', '주간 감정 통계 막대 차트', 'localStorage로 데이터 유지'],
+    twoWeeks: true,
+    refs: ['localStorage', 'CSS 그리드·플렉스', '간단한 차트 구현'],
+  },
+  {
+    id: 3,
+    title: '뽑기 / 사다리 게임',
+    desc: '이름 목록을 입력하면 사다리를 자동 생성하고 결과를 애니메이션으로 발표',
+    trends: ['일상자동화', '개인화'],
+    techs: ['웹개발'],
+    level: '입문',
+    stars: 2,
+    why: '픽셀라이프 트렌드 — 작고 즉각적인 재미 경험에 대한 수요 증가',
+    features: ['참여자 이름 입력·추가·삭제', '사다리 자동 생성 및 선 그리기', '결과 발표 애니메이션'],
+    twoWeeks: true,
+    refs: ['Canvas API 기초', '배열 셔플 알고리즘', 'requestAnimationFrame'],
+  },
+  {
+    id: 4,
+    title: '공부 타이머 + 통계',
+    desc: '뽀모도로 타이머로 공부하고 과목별 시간을 기록해 주간 통계를 보여주는 앱',
+    trends: ['건강관리', '개인화'],
+    techs: ['웹개발'],
+    level: '중급',
+    stars: 3,
+    why: '레디코어 트렌드 — 철저하게 자기를 관리하고 준비하는 자기주도적 태도 확산',
+    features: ['뽀모도로 25/5분 타이머', '과목별 누적 공부 시간 기록', '주간 달성률 차트'],
+    twoWeeks: true,
+    refs: ['setInterval · clearInterval', 'localStorage 구조화', 'SVG 원형 프로그레스 바'],
+  },
+  {
+    id: 5,
+    title: '날씨 기반 오늘 뭐 입을까',
+    desc: '현재 위치 날씨를 자동으로 가져와 기온·날씨에 맞는 의상 조합을 추천',
+    trends: ['일상자동화', 'AI활용'],
+    techs: ['API연동', '웹개발'],
+    level: '중급',
+    stars: 3,
+    why: '제로클릭 트렌드 — 검색 없이 즉시 답을 얻는 경험에 대한 수요 급증',
+    features: ['Geolocation으로 현재 위치 자동 감지', 'OpenWeatherMap API 날씨 조회', '기온 구간별 의상 추천 카드'],
+    twoWeeks: true,
+    refs: ['fetch() · async/await', 'Geolocation API', 'OpenWeatherMap 무료 플랜'],
+  },
+  {
+    id: 6,
+    title: '건강 습관 트래커',
+    desc: '매일 체크할 습관 목록을 만들고 연속 달성 스트릭과 월간 달력으로 시각화',
+    trends: ['건강관리', '개인화'],
+    techs: ['웹개발', '데이터'],
+    level: '중급',
+    stars: 3,
+    why: '건강지능 HQ 트렌드 — 건강을 소비가 아닌 스스로 설계하는 시대로 전환',
+    features: ['습관 추가·삭제 및 오늘 체크', '연속 달성 스트릭 카운터', '월간 달력 히트맵'],
+    twoWeeks: true,
+    refs: ['Date 객체 활용', 'localStorage 배열 관리', 'CSS 그리드 달력 레이아웃'],
+  },
+  {
+    id: 7,
+    title: '가계부 자동 분류기',
+    desc: '지출 내역을 입력하면 카테고리를 자동 분류하고 월별 지출 리포트를 생성',
+    trends: ['가격비교', '일상자동화'],
+    techs: ['자동화', '데이터'],
+    level: '중급',
+    stars: 3,
+    why: 'AX조직 트렌드 — 반복되는 수작업을 자동화해 효율을 높이는 생활 속 AI 전환',
+    features: ['지출 항목 입력 및 키워드 기반 자동 분류', '카테고리별 월 지출 파이차트', 'CSV 내보내기 기능'],
+    twoWeeks: true,
+    refs: ['Python pandas 기초', '정규표현식 키워드 매핑', 'matplotlib 시각화'],
+  },
+  {
+    id: 8,
+    title: 'AI 챗봇 인터페이스',
+    desc: 'OpenAI API에 연결해 주제별 AI 어시스턴트를 직접 만들고 대화 기록을 저장',
+    trends: ['AI활용', '개인화'],
+    techs: ['API연동', '웹개발'],
+    level: '도전',
+    stars: 4,
+    why: '휴먼인더루프 트렌드 — AI와 인간이 협업하는 켄타우로스형 도구의 실질적 구현',
+    features: ['채팅 UI 직접 구현', 'OpenAI Chat API 연동', '대화 기록 저장·불러오기'],
+    twoWeeks: false,
+    refs: ['OpenAI API 문서', 'fetch POST 요청', 'CSS 채팅 버블 UI'],
+  },
+  {
+    id: 9,
+    title: '중고 가격 비교기',
+    desc: '키워드를 입력하면 중고나라·번개장터 시세를 수집해 평균가와 가격 분포를 보여줌',
+    trends: ['가격비교', 'AI활용'],
+    techs: ['자동화', '데이터'],
+    level: '도전',
+    stars: 4,
+    why: '프라이스디코딩 트렌드 — 집단지성으로 가격 정보를 분석하는 초합리적 소비자 확산',
+    features: ['키워드 검색 및 데이터 크롤링', '수집 가격 평균·최저·최고 분석', '가격 분포 히스토그램'],
+    twoWeeks: false,
+    refs: ['Python requests · BeautifulSoup', 'Selenium 동적 크롤링', 'pandas 데이터 분석'],
+  },
+  {
+    id: 10,
+    title: '팀 미션 관리 앱',
+    desc: '팀원을 등록하고 할 일을 배분해 진행 상태를 칸반 보드로 관리하는 협업 도구',
+    trends: ['AI활용', '일상자동화'],
+    techs: ['웹개발', '데이터'],
+    level: '도전',
+    stars: 4,
+    why: 'AX조직 + 공진화전략 트렌드 — 팀 단위 협업 효율화와 AI 전환이 동시에 요구되는 시대',
+    features: ['팀원 등록 및 미션 배분', 'To-Do · In-Progress · Done 칸반 보드', '완료율 시각화 대시보드'],
+    twoWeeks: false,
+    refs: ['드래그앤드롭 API', 'localStorage 복잡한 상태 관리', 'Python Flask 기초 (서버 연동 시)'],
+  },
+];
+
+const KW_CONFIG = {
+  trend: ['가격비교', '일상자동화', '건강관리', '감정관리', 'AI활용', '개인화'],
+  tech:  ['웹개발', 'API연동', '자동화', '데이터'],
+  level: ['입문', '중급', '도전'],
+};
+
+const selected = { trend: new Set(), tech: new Set(), level: new Set() };
+const openCards = new Set();
+
+/* ─────────────────────────────────────────
+   INIT
+───────────────────────────────────────── */
+function init() {
+  buildKeywords('trend', 'row-trend', 'active-trend');
+  buildKeywords('tech',  'row-tech',  'active-tech');
+  buildKeywords('level', 'row-level', 'active-level');
+  renderCards();
+}
+
+function buildKeywords(cat, rowId, activeClass) {
+  const row = document.getElementById(rowId);
+  KW_CONFIG[cat].forEach(kw => {
+    const btn = document.createElement('button');
+    btn.className = 'kw-btn';
+    btn.textContent = kw;
+    btn.dataset.cat = cat;
+    btn.dataset.kw = kw;
+    btn.dataset.active = activeClass;
+    btn.onclick = () => toggleKw(cat, kw, btn, activeClass);
+    row.appendChild(btn);
+  });
+}
+
+/* ─────────────────────────────────────────
+   KEYWORD TOGGLE
+───────────────────────────────────────── */
+function toggleKw(cat, kw, btn, activeClass) {
+  if (selected[cat].has(kw)) {
+    selected[cat].delete(kw);
+    btn.classList.remove(activeClass);
+  } else {
+    selected[cat].add(kw);
+    btn.classList.add(activeClass);
+  }
+  renderCards();
+}
+
+function resetAll() {
+  ['trend', 'tech', 'level'].forEach(cat => {
+    selected[cat].clear();
+    document.querySelectorAll(`[data-cat="${cat}"]`).forEach(btn => {
+      btn.classList.remove(btn.dataset.active);
+    });
+  });
+  openCards.clear();
+  renderCards();
+}
+
+/* ─────────────────────────────────────────
+   SCORING
+───────────────────────────────────────── */
+function anySelected() {
+  return selected.trend.size > 0 || selected.tech.size > 0 || selected.level.size > 0;
+}
+
+function score(idea) {
+  let s = 0;
+  selected.trend.forEach(k => { if (idea.trends.includes(k)) s += 2; });
+  selected.tech.forEach(k  => { if (idea.techs.includes(k))  s += 2; });
+  if (selected.level.size > 0 && selected.level.has(idea.level)) s += 3;
+  return s;
+}
+
+/* ─────────────────────────────────────────
+   RENDER
+───────────────────────────────────────── */
+function renderCards() {
+  const grid = document.getElementById('grid');
+  const countEl = document.getElementById('matchCount');
+  grid.innerHTML = '';
+
+  const hasFilter = anySelected();
+
+  let sorted = IDEAS.map(idea => ({ idea, s: score(idea) }));
+  if (hasFilter) sorted.sort((a, b) => b.s - a.s);
+
+  const matched = hasFilter ? sorted.filter(x => x.s > 0) : sorted;
+  const maxScore = hasFilter ? (matched[0]?.s || 0) : 0;
+
+  if (hasFilter) {
+    if (matched.length === 0) {
+      countEl.innerHTML = '매칭된 아이디어가 없습니다. 다른 키워드를 선택해보세요.';
+    } else {
+      countEl.innerHTML = `<strong>${matched.length}</strong>개 아이디어 매칭됨`;
+    }
+  } else {
+    countEl.textContent = '키워드를 선택하면 매칭된 아이디어를 보여줍니다';
+  }
+
+  if (sorted.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'empty';
+    empty.textContent = '매칭된 아이디어가 없습니다. 다른 키워드를 선택해보세요.';
+    grid.appendChild(empty);
+    return;
+  }
+
+  sorted.forEach(({ idea, s }) => {
+    const isMatched = !hasFilter || s > 0;
+    const isTop = hasFilter && s === maxScore && s > 0;
+    grid.appendChild(makeCard(idea, s, isMatched, isTop, hasFilter));
+  });
+}
+
+function makeCard(idea, s, isMatched, isTop, hasFilter) {
+  const isOpen = openCards.has(idea.id);
+  const isAdded = getTodos().some(t => t.id === idea.id);
+
+  const card = document.createElement('div');
+  card.className = 'idea-card' +
+    (hasFilter && isTop    ? ' matched top' :
+     hasFilter && isMatched? ' matched' :
+     hasFilter             ? ' dimmed' : '');
+  card.id = `card-${idea.id}`;
+
+  // Stars
+  const filled = '★'.repeat(idea.stars) + '☆'.repeat(5 - idea.stars);
+  const starHtml = filled.split('').map((c, i) =>
+    `<span class="${i < idea.stars ? 'star-filled' : 'star-empty'}">${c}</span>`
+  ).join('');
+
+  // Tags
+  const trendTags = idea.trends.map(t => {
+    const hl = hasFilter && selected.trend.has(t);
+    return `<span class="tag tag-trend${hl ? ' hl-trend' : ''}">${t}</span>`;
+  }).join('');
+
+  const techTags = idea.techs.map(t => {
+    const hl = hasFilter && selected.tech.has(t);
+    return `<span class="tag tag-tech${hl ? ' hl-tech' : ''}">${t}</span>`;
+  }).join('');
+
+  const scoreBadge = hasFilter && s > 0
+    ? `<span class="score-badge show">${s}점</span>`
+    : `<span class="score-badge"></span>`;
+
+  // Features
+  const featureHtml = idea.features.map(f => `<li>${f}</li>`).join('');
+
+  // Refs
+  const refHtml = idea.refs.map(r => `<span class="ref-tag">${r}</span>`).join('');
+
+  const twoWeeksText = idea.twoWeeks
+    ? '<span class="weeks ok">✓ 2주 완성 가능</span>'
+    : '<span class="weeks">3주+ 권장</span>';
+
+  card.innerHTML = `
+    <div class="card-top" onclick="toggleDetail(${idea.id})">
+      <div class="card-header">
+        <span class="card-num">#${String(idea.id).padStart(2,'0')}</span>
+        <span class="card-title">${idea.title}</span>
+        ${scoreBadge}
+      </div>
+      <div class="card-desc">${idea.desc}</div>
+      <div class="tag-row">${trendTags}${techTags}</div>
+      <div class="stars">${starHtml}</div>
+    </div>
+    <div class="card-footer" onclick="toggleDetail(${idea.id})" style="cursor:pointer">
+      <span class="level-badge lv-${idea.level}">${idea.level}</span>
+      ${twoWeeksText}
+      <button class="add-btn${isAdded ? ' added' : ''}" id="add-${idea.id}"
+        onclick="addIdea(${idea.id}, event)"${isAdded ? ' disabled' : ''}>
+        ${isAdded ? '✓ 추가됨' : '+ 추가'}
+      </button>
+      <span class="toggle-icon">${isOpen ? '▲' : '▼'}</span>
+    </div>
+    <div class="detail${isOpen ? ' open' : ''}" id="detail-${idea.id}">
+      <div class="detail-inner">
+        <div class="detail-section">
+          <div class="detail-label">핵심 기능</div>
+          <ul class="feature-list">${featureHtml}</ul>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">왜 지금 만들면 좋은가</div>
+          <div class="why-text">${idea.why}</div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">공부해야 할 것</div>
+          <div class="ref-row">${refHtml}</div>
+        </div>
+      </div>
+    </div>`;
+
+  return card;
+}
+
+function toggleDetail(id) {
+  const detail = document.getElementById(`detail-${id}`);
+  const card   = document.getElementById(`card-${id}`);
+  if (!detail) return;
+
+  if (openCards.has(id)) {
+    openCards.delete(id);
+    detail.classList.remove('open');
+    card.querySelector('.toggle-icon').textContent = '▼';
+  } else {
+    openCards.add(id);
+    detail.classList.add('open');
+    card.querySelector('.toggle-icon').textContent = '▲';
+  }
+}
+
+/* ─────────────────────────────────────────
+   LOCALSTORAGE SYNC
+───────────────────────────────────────── */
+const STORAGE_KEY = 'portfolio_todos';
+
+function getTodos() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; }
+}
+
+function saveTodos(todos) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
+}
+
+function addIdea(id, e) {
+  e.stopPropagation();
+  const idea = IDEAS.find(i => i.id === id);
+  if (!idea) return;
+
+  const todos = getTodos();
+  if (todos.some(t => t.id === id)) return;
+
+  todos.push({
+    id: idea.id,
+    title: idea.title,
+    desc: idea.desc,
+    techs: idea.techs,
+    level: idea.level,
+    stars: idea.stars,
+    twoWeeks: idea.twoWeeks,
+  });
+  saveTodos(todos);
+
+  const btn = document.getElementById(`add-${id}`);
+  if (btn) {
+    btn.textContent = '✓ 추가됨';
+    btn.classList.add('added');
+    btn.disabled = true;
+  }
+
+  showToast(`"${idea.title}" 포트폴리오에 추가됐습니다`);
+}
+
+function showToast(msg) {
+  let toast = document.getElementById('global-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'global-toast';
+    toast.className = 'toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+init();
+</script>
+</body>
+</html>
